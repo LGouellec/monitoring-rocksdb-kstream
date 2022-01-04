@@ -1,0 +1,177 @@
+version: "2.4"
+services:
+
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:6.0.0
+    hostname: zookeeper-1
+    ports:
+      - 12181:2181
+    environment:
+      ZOOKEEPER_SERVER_ID: "1"
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+      ZOOKEEPER_4LW_COMMANDS_WHITELIST: "*"
+      EXTRA_ARGS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar=1234:/usr/share/jmx_exporter/zookeeper.yml
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+    volumes:
+    - ./jmx-exporter:/usr/share/jmx_exporter/
+
+  zookeeper-2:
+    image: confluentinc/cp-zookeeper:6.0.0
+    hostname: zookeeper-2
+    ports:
+      - 12182:2181
+    environment:
+      ZOOKEEPER_SERVER_ID: "2"
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+      ZOOKEEPER_4LW_COMMANDS_WHITELIST: "*"
+      EXTRA_ARGS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar=1234:/usr/share/jmx_exporter/zookeeper.yml
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+    volumes:
+    - ./jmx-exporter:/usr/share/jmx_exporter/
+
+  zookeeper-3:
+    image: confluentinc/cp-zookeeper:6.0.0
+    hostname: zookeeper-3
+    ports:
+      - 12183:2181
+    environment:
+      ZOOKEEPER_SERVER_ID: "3"
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVERS: zookeeper-1:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+      ZOOKEEPER_4LW_COMMANDS_WHITELIST: "*"
+      EXTRA_ARGS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar=1234:/usr/share/jmx_exporter/zookeeper.yml
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+    volumes:
+    - ./jmx-exporter:/usr/share/jmx_exporter/
+
+  kafka-1:
+    image: confluentinc/cp-kafka:6.0.0
+    hostname: kafka-1
+    ports:
+      - 19092:19092
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    environment:
+      KAFKA_LISTENERS: "INTERNAL://kafka-1:9092,EXTERNAL://:19092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka-1:9092,EXTERNAL://localhost:19092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181"
+      KAFKA_BROKER_ID: "1"
+      KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar=1234:/usr/share/jmx_exporter/kafka-broker.yml
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+    volumes:
+    - ./jmx-exporter:/usr/share/jmx_exporter/
+
+  kafka-2:
+    image: confluentinc/cp-kafka:6.0.0
+    hostname: kafka-2
+    ports:
+      - 19093:19093
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181"
+      KAFKA_LISTENERS: "INTERNAL://kafka-2:9092,EXTERNAL://:19093"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka-2:9092,EXTERNAL://localhost:19093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_BROKER_ID: "2"
+      KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar=1234:/usr/share/jmx_exporter/kafka-broker.yml
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+    volumes:
+    - ./jmx-exporter:/usr/share/jmx_exporter/
+
+  kafka-3:
+    image: confluentinc/cp-kafka:6.0.0
+    hostname: kafka-3
+    ports:
+      - 19094:19094
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181"
+      KAFKA_LISTENERS: "INTERNAL://kafka-3:9092,EXTERNAL://:19094"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka-3:9092,EXTERNAL://localhost:19094"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_BROKER_ID: "3"
+      KAFKA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar=1234:/usr/share/jmx_exporter/kafka-broker.yml
+      KAFKA_HEAP_OPTS: "-Xmx512M -Xms512M"
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+    volumes:
+    - ./jmx-exporter:/usr/share/jmx_exporter/
+
+  producer:
+    build: ./sample-application/producer
+    environment:
+      JAVA_OPTS: "-javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar=1234:/usr/share/jmx_exporter/kafka-producer.yml -Xmx256M -Xms256M"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-1:9092, kafka-2:9092, kafka-3:9092"
+      TOPIC: "account-transactions"
+      REPLICATION_FACTOR: 3
+      NUMBER_OF_PARTITIONS: 4
+      MESSAGE_BACKOFF: 50 # Frequency of message injection
+      NUMBER_MESSAGE_PER_BATCH: 300
+      LIST_PERSONS: "antoinette,gaston,arnaud,jacques,gilles,sÈverin,stÈphane,violette,alphonse,dÈsirÈ,rosette,clarisse,bÈatrice,gÈrard,frÈdÈric,jeannot,fernand,dominique,eugËne,jÈrÈmie,lucienne,timothÈe,philippe,victoire,fÈlix,michËle,amaury,berthe,clÈment,lucille,adrien,aude,gustave,raphaÎl,laure,nicolas,aimÈ,carole,monique,valÈry,augustin,frÈdÈrique,raoul,alexandrie,cÈcile,gilberte,honorÈ,thierry,germaine,sÈbastien,anatole,hilaire,claire,antoine,marine,aurÈlie,jeannette,camille,Èlodie,baptiste,mathilde,mignon,chantÈ,josÈphine,odette,lazare,marceline,renÈe,lÈonard,claudine,apollinaire,eugÈnie,joÎl,albertine,mariette,damien,reine,georges,virginie,pascal,armand,vienne,franÁois,agnËs,maxime,colombe,grÈgoire,rÈmy,colette,ambre,fifi,odile,micheline,edmond,yves,mÈlanie,placide,mathieu,thÈo,jourdain,maximilien,gisËle,reynaud,cÈline,mireille,solange,laurent,jolie,marguerite,suzanne,paule,lucien,adËle,thÈrËse,modeste,jÈrÙme,nadine,luc,alain,auguste,franÁoise,hÈlËne,charlot,julienne,delphine,rochelle,dÈsirÈe,lÈopold,sylvestre,gautier,clÈmence,manon,martine,thÈodore,hercule,valÈrie,cerise,flavie,hortense,Èlise,bastien,paulette,rÈmi,fiacre,gaspard,yvette,blaise,toussaint,fabienne,thibault,adrienne,eustache,hÈloÔse,nazaire,marc,lucie,renÈ,pierre,sylvie,urbain,loup,juste,germain,juliette,adÈlaÔde,inËs,guillaume,romain,geneviËve,lÈon,jeanne,aimÈe,josette,julien,Èdouard,christophe,olivier,marie,romaine,cÈleste,yvonne,Èmile,henri,franck,vÈronique,rÈgis,aurore,Ètienne,nathalie,serge,hervÈ,gervais,luce,sylviane,renaud,georgette,philibert,adolphe,amÈdÈe,didier,daniËle,irËne,ambroise,amÈlie,Èdith,noÈ,olympe,bÈnÈdicte,sacha,stÈphanie,henriette,vivienne,rodolphe,annette,ignace,salomÈ,thÈophile,fernande,marcelle,sylvain,pons,narcisse,roch,zoÈ,bernadette,cyrille,raymonde,anselme,basile,lÈonie,cÈlestin,corinne,pÈnÈlope,esmÈe,hugues,fabrice,margot,rolande,hyacinthe,matthieu,rosalie,lisette,andrÈe,angËle,aristide,aurËle,florentin,Èmilie,lÈontine,arnaude,lothaire,baudouin,rosine,dorothÈe,lÈandre,perrine,firmin,gratien,marcellin,benoit,donatien,ninon,patrice,Èliane,ocÈane,rodrigue,yolande,yseult,rainier,dieudonnÈ,pascale,sandrine,cÈlestine,honorine,irÈnÈe,lydie,sidonie,fÈlicie,rÈgine,fabien,brice,jacinthe,morgane,suzette,Èvariste,toinette,anastasie,apolline,chloÈ,josiane,nicolette,barnabÈ,barthÈlÈmy,edwige,eulalie,ghislaine,pascaline,perceval,vivien,gÈraud,josËphe,lÈonce,ninette,rÈbecca,vespasien,benjamine,gÈrald,ghislain,marielle,nicodËme,noel,noÈmie,oriane,rosemonde,zacharie,alphonsine,cosette,gigi,lÈa,lionel,philippine,diodore,emmanuelle,evrard,geoffroi,laurette,victorine,angeline,angelique,armel,claudette,donatienne,doriane,edgard,elÈonore,Èmilien,faustine,gaÈtan,josÈe,marcelline,marise,ouida,paschal,sÈbastienne,valËre,absolon,arianne,arienne,armelle,aurelien,axelle,benoite,cesaire,charline,christelle,clementine,clothilde,colombain,corin,cunÈgonde,dieudonnÈe,eloi,Èloise,emeline,ermenegilde,esmÈ,felicien,felicienne,florette,florianne,gaetane,georgine,gervaise (2),gwenaelle,irÈnÈ,jean (1),jean-baptiste,jean-marie,joceline,joelle,jules (1),laurence (2),laurentine,lÈonne,loic,lucinde,lucrece,lunete,madeline,marcellette,marianne (1),maximilienne,mÈlissa,modestine,morgaine,noella,olivie,onesime,orianne,osanne,ozanne,papillion,roselle,seraphine,sÈvÈrine,simone (1),sylvaine,sylvianne,tatienne,telesphore,theirn,valentine (2),zephyrine"
+      KAFKA_ACKS: "all"
+      KAFKA_LINGER_MS: "25"
+    volumes:
+    - ./jmx-exporter:/usr/share/jmx_exporter/
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - streams #Stream create topic
+
+  streams:
+    build: ./sample-application/streams
+    hostname: streams-1
+    environment:
+      JAVA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar=1234:/usr/share/jmx_exporter/kafka-streams-post-2.5.yml -Xmx256M -Xms256M
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-1:9092, kafka-2:9092, kafka-3:9092"
+      INPUT_TOPIC: "account-transactions"
+      OUTPUT_TOPIC: "account-banking"
+      APPLICATION_ID: "account-banking-streams"
+      REPLICATION_FACTOR: 3
+      NUMBER_OF_PARTITIONS: 4
+      KAFKA_PROCESSING_GUARANTEE: "at_least_once"
+      KAFKA_COMMIT_INTERVAL_MS: 10000 # 10 seconds
+      KAFKA_CACHE_MAX_BYTES_BUFFERING: 1048576 # 1MB
+      KAFKA_METRICS_RECORDING_LEVEL: "DEBUG"
+      KAFKA_NUM_STREAM_THREADS: "1"
+      KAFKA_REPLICATION_FACTOR: "3"
+    volumes:
+    - ./jmx-exporter:/usr/share/jmx_exporter/
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+
+  prometheus:
+    image: prom/prometheus:v2.11.1
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+
+  grafana:
+    image: grafana/grafana:7.3.3
+    environment:
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
