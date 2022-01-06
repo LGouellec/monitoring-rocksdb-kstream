@@ -2,7 +2,7 @@ version: "2.4"
 services:
 
   zookeeper-1:
-    image: confluentinc/cp-zookeeper:6.0.0
+    image: confluentinc/cp-zookeeper:7.0.0
     hostname: zookeeper-1
     ports:
       - 12181:2181
@@ -17,7 +17,7 @@ services:
     - ./jmx-exporter:/usr/share/jmx_exporter/
 
   zookeeper-2:
-    image: confluentinc/cp-zookeeper:6.0.0
+    image: confluentinc/cp-zookeeper:7.0.0
     hostname: zookeeper-2
     ports:
       - 12182:2181
@@ -32,7 +32,7 @@ services:
     - ./jmx-exporter:/usr/share/jmx_exporter/
 
   zookeeper-3:
-    image: confluentinc/cp-zookeeper:6.0.0
+    image: confluentinc/cp-zookeeper:7.0.0
     hostname: zookeeper-3
     ports:
       - 12183:2181
@@ -47,7 +47,7 @@ services:
     - ./jmx-exporter:/usr/share/jmx_exporter/
 
   kafka-1:
-    image: confluentinc/cp-kafka:6.0.0
+    image: confluentinc/cp-kafka:7.0.0
     hostname: kafka-1
     ports:
       - 19092:19092
@@ -70,7 +70,7 @@ services:
     - ./jmx-exporter:/usr/share/jmx_exporter/
 
   kafka-2:
-    image: confluentinc/cp-kafka:6.0.0
+    image: confluentinc/cp-kafka:7.0.0
     hostname: kafka-2
     ports:
       - 19093:19093
@@ -93,7 +93,7 @@ services:
     - ./jmx-exporter:/usr/share/jmx_exporter/
 
   kafka-3:
-    image: confluentinc/cp-kafka:6.0.0
+    image: confluentinc/cp-kafka:7.0.0
     hostname: kafka-3
     ports:
       - 19094:19094
@@ -151,7 +151,7 @@ services:
       KAFKA_COMMIT_INTERVAL_MS: 10000 # 10 seconds
       KAFKA_CACHE_MAX_BYTES_BUFFERING: 1048576 # 1MB
       KAFKA_METRICS_RECORDING_LEVEL: "DEBUG"
-      KAFKA_NUM_STREAM_THREADS: "1"
+      KAFKA_NUM_STREAM_THREADS: "2"
       KAFKA_REPLICATION_FACTOR: "3"
     volumes:
     - ./jmx-exporter:/usr/share/jmx_exporter/
@@ -175,3 +175,18 @@ services:
       - 3000:3000
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.0.0
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka-1:9092,kafka-2:9092,kafka-3:9092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
