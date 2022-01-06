@@ -1,0 +1,25 @@
+{
+  "namespace": "com.sample.avro",
+  "type": "record",
+  "name": "Command",
+  "fields": [
+    {
+      "name": "commandId",
+      "type": "string"
+    },
+    {
+      "name": "commandDate",
+      "type": {
+        "type" : "long",
+        "logicalType" : "timestamp-millis"
+      }
+    },
+    {
+      "name": "products",
+      "type": {
+        "type": "array",
+        "items": "com.sample.avro.Product"
+      }
+    }
+  ]
+}
