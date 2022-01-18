@@ -33,12 +33,7 @@
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
-            <version>1.8.2</version>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.10.13</version>
+            <version>1.11.0</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -87,7 +82,7 @@
             <plugin>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro-maven-plugin</artifactId>
-                <version>1.8.2</version>
+                <version>1.11.0</version>
                 <configuration>
                     <sourceDirectory>${project.basedir}/../../schemas/</sourceDirectory>
                     <!-- Use private visibility for Avro class fields instead of public -->

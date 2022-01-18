@@ -143,7 +143,6 @@ services:
       JAVA_OPTS: -javaagent:/usr/share/jmx_exporter/jmx_prometheus_javaagent-0.14.0.jar=1234:/usr/share/jmx_exporter/kafka-streams-post-2.5.yml -Xmx256M -Xms256M
       KAFKA_BOOTSTRAP_SERVERS: "kafka-1:9092, kafka-2:9092, kafka-3:9092"
       INPUT_TOPIC: "account-transactions"
-      OUTPUT_TOPIC: "account-banking"
       APPLICATION_ID: "account-banking-streams"
       REPLICATION_FACTOR: 3
       NUMBER_OF_PARTITIONS: 4
@@ -190,3 +189,22 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka-1:9092,kafka-2:9092,kafka-3:9092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+
+  akhq:
+    image: tchiotludo/akhq
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          server:
+            access-log:
+              enabled: false
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
+    ports:
+      - 8082:8080
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3

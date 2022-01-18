@@ -20,6 +20,34 @@
         "type": "array",
         "items": "com.sample.avro.Product"
       }
+    },
+    {
+      "name": "items",
+      "type": {
+        "type": "array",
+        "items": {
+          "name": "ProductCommand",
+          "type": "record",
+          "fields": [
+            {
+              "name": "productId",
+              "type": "string"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "total",
+      "type": "float"
+    },
+    {
+      "name": "user",
+      "type": "string"
     }
   ]
 }
