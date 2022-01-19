@@ -62,15 +62,12 @@ public class SimpleProducer {
     }
 
     private void initializeUsers() throws URISyntaxException {
-        URL userUrl = getClass().getClassLoader().getResource("users");
+        InputStream stream = getClass().getClassLoader().getResourceAsStream("users");
         users = new ArrayList<>();
-
-        FileReader fr = null;
         BufferedReader br = null;
         try
         {
-            fr = new FileReader(new File(userUrl.toURI()));
-            br = new BufferedReader(fr);
+            br = new BufferedReader(new InputStreamReader(stream));
             String line;
             while((line=br.readLine())!=null)
                 users.add(line);
@@ -85,11 +82,10 @@ public class SimpleProducer {
         finally
         {
             try{
-                if(fr != null && br!=null)
-                {
-                    fr.close();
+                if(br!=null)
                     br.close();
-                }
+                if(stream != null)
+                    stream.close();
             }catch(IOException ioe)
             {
                 System.out.println("Error in file/buffered reader close(): " + ioe);

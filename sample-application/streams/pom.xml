@@ -41,12 +41,6 @@
             <artifactId>kafka-streams-avro-serde</artifactId>
             <version>7.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.sample</groupId>
-            <artifactId>simple-producer</artifactId>
-            <version>1.0.0</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -85,13 +79,13 @@
                 <artifactId>avro-maven-plugin</artifactId>
                 <version>1.11.0</version>
                 <configuration>
-                    <sourceDirectory>${project.basedir}/../../schemas/</sourceDirectory>
+                    <sourceDirectory>${project.basedir}/src/main/avro</sourceDirectory>
                     <!-- Use private visibility for Avro class fields instead of public -->
                     <fieldVisibility>PRIVATE</fieldVisibility>
                     <stringType>String</stringType>
                     <imports>
-                        <import>../../schemas/product.avsc</import>
-                        <import>../../schemas/command.avsc</import>
+                        <import>src/main/avro/product.avsc</import>
+                        <import>src/main/avro/command.avsc</import>
                     </imports>
                 </configuration>
                 <executions>
