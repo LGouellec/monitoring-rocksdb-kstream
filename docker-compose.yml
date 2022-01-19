@@ -137,6 +137,7 @@ services:
       - kafka-2
       - kafka-3
       - streams #Stream create topic
+      - schema-registry
 
   streams:
     build: ./sample-application/streams
@@ -161,6 +162,7 @@ services:
       - kafka-1
       - kafka-2
       - kafka-3
+      - schema-registry
 
   prometheus:
     image: prom/prometheus:v2.11.1
