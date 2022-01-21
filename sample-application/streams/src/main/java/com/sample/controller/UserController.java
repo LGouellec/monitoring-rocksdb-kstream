@@ -12,7 +12,12 @@ public class UserController {
     private TopologyKafkaStreams streams;
 
     @RequestMapping(value = "/{date}/{id}", method = RequestMethod.GET, produces = "application/json")
-    public String getUser(@PathVariable String date, @PathVariable String id) {
+    public String getDayUser(@PathVariable String date, @PathVariable String id) {
+        return id;
+    }
+
+    @RequestMapping(value = "/average/{id}", method = RequestMethod.GET, produces = "application/json")
+    public String getAverageUser(@PathVariable String date, @PathVariable String id) {
         return id;
     }
 }
