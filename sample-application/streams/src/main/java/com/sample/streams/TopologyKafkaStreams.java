@@ -36,6 +36,10 @@ import java.util.stream.Collectors;
 @Component
 public class TopologyKafkaStreams {
 
+    public static final String USER_COMMAND_STORE = "total-command-by-user-store";
+    public static final String PRODUCT_COMMAND_STORE = "total-command-by-product-store";
+    public static final String BEST_SALES_PRODUCT_STORE = "best-sales-products-store";
+
     private static final String KAFKA_ENV_PREFIX = "KAFKA_";
     private final Properties properties;
     private final String inputTopic;
@@ -55,6 +59,10 @@ public class TopologyKafkaStreams {
         createTopic(adminClient, "total-command-by-user", numberOfPartitions, replicationFactor);
         createTopic(adminClient, "total-command-by-product", numberOfPartitions, replicationFactor);
         createTopic(adminClient, "best-products-sales", 1, replicationFactor);
+    }
+
+    public KafkaStreams getStreams() {
+        return streams;
     }
 
     private Map<String, Object> defaultProps = Map.of(
@@ -124,7 +132,7 @@ public class TopologyKafkaStreams {
                 .aggregate(
                         () -> 0F,
                         (k,value, old) -> old + value.getTotal(),
-                        Materialized.as("total-command-by-user-store"))
+                        Materialized.as(USER_COMMAND_STORE))
                 .toStream((k,v)->k.key())
                 .to("total-command-by-user", Produced.with(Serdes.String(), Serdes.Float()));
 
@@ -144,7 +152,7 @@ public class TopologyKafkaStreams {
                 .aggregate(
                         () -> 0F,
                         (k, value, old) -> value + old,
-                        Materialized.as("total-command-by-product-store"));
+                        Materialized.as(PRODUCT_COMMAND_STORE));
 
         tableCommandByDayProducts
                 .toStream((k,v) -> {
@@ -171,7 +179,7 @@ public class TopologyKafkaStreams {
 
                             @Override
                             public void init(org.apache.kafka.streams.processor.ProcessorContext processorContext) {
-                                store = processorContext.getStateStore("best-sales-products-store");
+                                store = processorContext.getStateStore(BEST_SALES_PRODUCT_STORE);
                                 processorContext.schedule(
                                         Duration.ofMinutes(1),
                                         PunctuationType.WALL_CLOCK_TIME,
@@ -179,7 +187,7 @@ public class TopologyKafkaStreams {
                                             // todo : remove old days
                                             // get the current list of current timestamp and forward
                                             Date d = Date.from(Instant.ofEpochMilli(ts));
-                                            String day = formatter.format(d);
+                                            String day = formatter.format(d).replace("/", "-");
                                             List<BestProduct> products = store.get(day);
                                             processorContext.forward(day, products);
                                         });
@@ -189,7 +197,7 @@ public class TopologyKafkaStreams {
                             public KeyValue<String, List<BestProduct>> transform(Windowed<String> key, Float value) {
 
                                 Date d = Date.from(key.window().startTime());
-                                String day = formatter.format(d);
+                                String day = formatter.format(d).replace("/", "-");
 
                                 List<BestProduct> products = store.get(day);
                                 if(products == null)
@@ -222,7 +230,7 @@ public class TopologyKafkaStreams {
                     public Set<StoreBuilder<?>> stores() {
 
                         KeyValueBytesStoreSupplier supplier =
-                                Stores.persistentKeyValueStore("best-sales-products-store");
+                                Stores.persistentKeyValueStore(BEST_SALES_PRODUCT_STORE);
 
                         return Set.of(Stores.keyValueStoreBuilder(
                                 supplier,
