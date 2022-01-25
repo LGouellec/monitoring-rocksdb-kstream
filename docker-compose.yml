@@ -132,6 +132,7 @@ services:
     volumes:
       - ./jmx-exporter:/usr/share/jmx_exporter/
       - ./referential/products:/usr/share/products
+    restart: always
     depends_on:
       - kafka-1
       - kafka-2
@@ -156,6 +157,8 @@ services:
       KAFKA_NUM_STREAM_THREADS: "2"
       KAFKA_REPLICATION_FACTOR: "3"
       KAFKA_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+    ports:
+      - "8080:8080"
     volumes:
     - ./jmx-exporter:/usr/share/jmx_exporter/
     depends_on:

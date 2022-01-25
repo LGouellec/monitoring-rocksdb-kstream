@@ -1,6 +1,7 @@
 package com.sample.controller;
 
-import com.sample.bean.BestProduct;
+import com.sample.avro.Command;
+import com.sample.bean.CommandJsonModel;
 import com.sample.streams.TopologyKafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
@@ -11,23 +12,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.ParseException;
-import java.util.List;
-
 @RestController
-@RequestMapping("best-sales")
-public class BestProductController {
+@RequestMapping("commands")
+public class CommandController {
 
     @Autowired
     private TopologyKafkaStreams streams;
 
-    @RequestMapping(value = "/{date}", method = RequestMethod.GET, produces = "application/json")
-    public List<BestProduct> getDay(@PathVariable String date) throws ParseException {
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = "application/json")
+    public CommandJsonModel getCommand(@PathVariable String id) {
 
-        ReadOnlyKeyValueStore<String, List<BestProduct>> store = streams
+        ReadOnlyKeyValueStore<String, Command> store = streams
                 .getStreams()
-                .store(StoreQueryParameters.fromNameAndType(TopologyKafkaStreams.BEST_SALES_PRODUCT_STORE, QueryableStoreTypes.keyValueStore()));
+                .store(StoreQueryParameters.fromNameAndType(TopologyKafkaStreams.COMMAND_STORE, QueryableStoreTypes.keyValueStore()));
 
-        return store.get(date);
+        return CommandJsonModel.to(store.get(id));
     }
 }

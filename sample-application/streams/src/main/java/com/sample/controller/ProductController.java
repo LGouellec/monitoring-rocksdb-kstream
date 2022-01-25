@@ -1,5 +1,6 @@
 package com.sample.controller;
 
+import com.sample.helper.DateTimeHelper;
 import com.sample.streams.TopologyKafkaStreams;
 import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
@@ -26,7 +27,7 @@ public class ProductController {
     @RequestMapping(value = "/{date}/{id}", method = RequestMethod.GET, produces = "application/json")
     public Float getDayProduct(@PathVariable String date, @PathVariable String id) throws ParseException {
 
-        long timeEpoch = format.parse(date).getTime() + 3600000; // add 1 hour
+        long timeEpoch = DateTimeHelper.getEpochMidnight(date);
 
         ReadOnlyWindowStore<String, Float> store = streams
                 .getStreams()

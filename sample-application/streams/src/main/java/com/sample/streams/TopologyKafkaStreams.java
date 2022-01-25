@@ -39,6 +39,7 @@ public class TopologyKafkaStreams {
     public static final String USER_COMMAND_STORE = "total-command-by-user-store";
     public static final String PRODUCT_COMMAND_STORE = "total-command-by-product-store";
     public static final String BEST_SALES_PRODUCT_STORE = "best-sales-products-store";
+    public static final String COMMAND_STORE = "command-store";
 
     private static final String KAFKA_ENV_PREFIX = "KAFKA_";
     private final Properties properties;
@@ -240,6 +241,13 @@ public class TopologyKafkaStreams {
                 })
                 .to("best-products-sales", Produced.with(Serdes.String(), bestProductSerde));
 
+        // 4. materialize command state store
+        Materialized commandMaterialized =
+                Materialized.<String, Command, KeyValueStore<Byte, byte[]>>as(COMMAND_STORE)
+                        .withKeySerde(Serdes.String())
+                        .withValueSerde(commandSerde);
+
+        commands.toTable(commandMaterialized);
 
         Topology topology = builder.build();
 
